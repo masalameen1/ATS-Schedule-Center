@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function mail() { return request.auth.token.email.lower(); }
+    function ok() { return request.auth != null && request.auth.token.email_verified == true; }
+    function inOwn(f) { return ok() && exists(/databases/$(database)/documents/coord/owner) && mail() in get(/databases/$(database)/documents/coord/owner).data.get(f, []); }
+    // everyone who may record/assign substitutions
+    function writer() { return (ok() && mail() in ['abdullah.abbas@actvet.gov.ae', 'abedalla.banihani@actvet.gov.ae', 'ahmad.debek@actvet.gov.ae', 'alia.omran@actvet.gov.ae', 'anjali.rajan@actvet.gov.ae', 'easa.ebrahimouh@actvet.gov.ae', 'fahad.almansoori@actvet.gov.ae', 'furat.jasim@actvet.gov.ae', 'hatem.hamdeh@actvet.gov.ae', 'heba.alshehhi@actvet.gov.ae', 'mahmoud.yousef@actvet.gov.ae', 'masalameen@gmail.com', 'mohammad.salamin@actvet.gov.ae', 'naser.alashab@actvet.gov.ae', 'tamer.ahmed@actvet.gov.ae', 'waseem.alhausani@actvet.gov.ae']) || inOwn('wr') || inOwn('au'); }
+    // authorised staff (archive, messages inbox)
+    function auth() { return (ok() && mail() in ['abdullah.abbas@actvet.gov.ae', 'abedalla.banihani@actvet.gov.ae', 'ahmad.debek@actvet.gov.ae', 'anjali.rajan@actvet.gov.ae', 'fahad.almansoori@actvet.gov.ae', 'furat.jasim@actvet.gov.ae', 'hatem.hamdeh@actvet.gov.ae', 'mahmoud.yousef@actvet.gov.ae', 'masalameen@gmail.com', 'mohammad.salamin@actvet.gov.ae', 'naser.alashab@actvet.gov.ae', 'tamer.ahmed@actvet.gov.ae', 'waseem.alhausani@actvet.gov.ae']) || inOwn('au'); }
+    // may add excuse/comments on exam absentees
+    function cmt() { return (ok() && mail() in ['heba.alshehhi@actvet.gov.ae', 'aaesha.alnuaimi@actvet.gov.ae', 'hatem.talal@actvet.gov.ae', 'sheikha.alkeebali@actvet.gov.ae', 'easa.ebrahimouh@actvet.gov.ae', 'alia.omran@actvet.gov.ae', 'sara.alboodi@actvet.gov.ae', 'omar.almansoori@actvet.gov.ae']) || inOwn('cm'); }
+    // may publish notices (news / notes / reminders): owner, subject leaders, Hatem
+    function noticer() { return ok() && mail() in ['mohammad.salamin@actvet.gov.ae', 'abdullah.abbas@actvet.gov.ae', 'abedalla.banihani@actvet.gov.ae', 'ahmad.debek@actvet.gov.ae', 'furat.jasim@actvet.gov.ae', 'hatem.hamdeh@actvet.gov.ae', 'hatem.talal@actvet.gov.ae', 'masalameen@gmail.com', 'tamer.ahmed@actvet.gov.ae', 'waseem.alhausani@actvet.gov.ae']; }
+    function teacher() { return (ok() && mail() in ['hatem.talal@actvet.gov.ae', 'aaesha.alnuaimi@actvet.gov.ae', 'abdalrahman.wahdan@actvet.gov.ae', 'abdul.parakkal@actvet.gov.ae', 'abdullah.abbas@actvet.gov.ae', 'abedalla.banihani@actvet.gov.ae', 'ahmad.debek@actvet.gov.ae', 'alia.omran@actvet.gov.ae', 'amal.alshehhi@actvet.gov.ae', 'sujeevan.nagendran@actvet.gov.ae', 'ammar.ahmed@actvet.gov.ae', 'anjali.rajan@actvet.gov.ae', 'anju.menon@actvet.gov.ae', 'aysha.juma@actvet.gov.ae', 'badryya.alshehhi@actvet.gov.ae', 'easa.ebrahimouh@actvet.gov.ae', 'elham.alshehhi@actvet.gov.ae', 'fahad.almansoori@actvet.gov.ae', 'feda.abunawa@actvet.gov.ae', 'francisco.ortiz@actvet.gov.ae', 'furat.jasim@actvet.gov.ae', 'hany.nabil@actvet.gov.ae', 'hatem.hamdeh@actvet.gov.ae', 'hayat.braidy@actvet.gov.ae', 'heba.aljabahji@actvet.gov.ae', 'heba.alshehhi@actvet.gov.ae', 'hussein.saleh@actvet.gov.ae', 'huthaifa.awwad@actvet.gov.ae', 'ibrahem.nofal@actvet.gov.ae', 'ibrahim.elbauomy@actvet.gov.ae', 'iman.nabil@actvet.gov.ae', 'kalthoom.alkhatri@actvet.gov.ae', 'karim.zohni@actvet.gov.ae', 'khaled.rababh@actvet.gov.ae', 'khawla.alnaqbi@actvet.gov.ae', 'maha.zaatout@actvet.gov.ae', 'mahmoud.yousef@actvet.gov.ae', 'manar.dhaher@actvet.gov.ae', 'marwa.ali@actvet.gov.ae', 'masalameen@gmail.com', 'moath.ahmed@actvet.gov.ae', 'mohammad.awaad@actvet.gov.ae', 'mohammad.salamin@actvet.gov.ae', 'mona.alshehhi@actvet.gov.ae', 'muhammed.palayi@actvet.gov.ae', 'nada.alshehhi@actvet.gov.ae', 'naser.alashab@actvet.gov.ae', 'olalekan.akanni@actvet.gov.ae', 'omar.almansoori@actvet.gov.ae', 'ragheb.alali@actvet.gov.ae', 'rahul.murikkoli@actvet.gov.ae', 'rak.info@actvet.gov.ae', 'rami.freihat@actvet.gov.ae', 'saleh.abdulrazeq@actvet.gov.ae', 'sara.alboodi@actvet.gov.ae', 'sawsan.malaka@actvet.gov.ae', 'shaikha.alhamoudi@actvet.gov.ae', 'sheikha.alkeebali@actvet.gov.ae', 'subhi.ashour@actvet.gov.ae', 'tamer.ahmed@actvet.gov.ae', 'waseem.alhausani@actvet.gov.ae', 'yazan.odetalla@actvet.gov.ae']) || inOwn('tch') || inOwn('wr') || inOwn('au') || inOwn('cm'); }
+
+    // permanent substitution archive: authorised only (read + write)
+    match /coord/{d} {
+      allow read: if d.matches('subarch_.*') ? auth() : teacher();
+      allow delete: if d != 'owner' && d != 'notices' && d != 'appcfg' && d != 'radiopub' &&(d.matches('subarch_.*') ? auth() : writer());
+      allow create, update: if (d == 'owner' || d == 'notices' || d == 'appcfg' || d == 'radiopub') ? false : (d.matches('subarch_.*') ? auth() : (d == 'absnotes' ? (writer() || cmt()) : (d == 'attend' ? (teacher() || writer()) : writer())));
+    }
+    // notices: public read (students are not signed in); only the owner, leaders and Hatem write
+    match /coord/notices {
+      allow read: if true;
+      allow write: if noticer();
+    }
+    // broadcast: public read of approved items and the Quran reciter table (ids only); only the owner and Ahmad Debek write
+    match /coord/radiopub {
+      allow read: if true;
+      allow write: if ok() && mail() in ['masalameen@gmail.com', 'ahmad.debek@actvet.gov.ae'] && (request.method == 'delete' || request.resource.data.j.size() < 60000);
+    }
+    // broadcast participation suggestions: every teacher reads; each writes only their own document
+    match /radsug/{uid} {
+      allow read: if teacher();
+      allow create, update: if teacher() && request.auth.uid == uid && request.resource.data.j.size() < 30000 && request.resource.data.j.matches('.*"email":"' + mail() + '".*');
+      allow delete: if ok() && request.auth.uid == uid;
+    }
+    // student broadcast requests: anyone may ADD one small request (no names — id + class only); only teachers read; no edit or delete
+    match /radreq/{id} {
+      allow read: if teacher();
+      allow create: if request.resource.data.keys().hasOnly(['j', 't']) && request.resource.data.j is string && request.resource.data.j.size() < 1500;
+    }
+    // unified timing + bell tones: public read; only the coordinator writes
+    match /coord/appcfg {
+      allow read: if true;
+      allow write: if ok() && mail() in ['masalameen@gmail.com', 'mohammad.salamin@actvet.gov.ae'];
+    }
+    // owner panel: only the owner writes; only signed-in staff who hold a role (teacher/editor/authorised/comment) may read it
+    match /coord/owner {
+      allow read: if teacher() || writer() || auth() || cmt() || (ok() && mail() == 'masalameen@gmail.com');
+      allow write: if ok() && mail() == 'masalameen@gmail.com';
+    }
+    // teacher inbox: each teacher writes only their own document; admins read all
+    match /inbox/{uid} {
+      allow read: if teacher() && (request.auth.uid == uid || auth());
+      allow write: if teacher() && (request.auth.uid == uid || auth());
+    }
+    // suggestion box: any signed-in teacher writes only their own document (and only under their own email); only the owner reads everything
+    match /sugg/{uid} {
+      allow read: if ok() && (request.auth.uid == uid || mail() == 'masalameen@gmail.com');
+      allow create, update: if ok() && (mail() == 'masalameen@gmail.com' || (teacher() && request.auth.uid == uid && request.resource.data.j.matches('.*"email":"' + mail() + '".*')));
+      allow delete: if ok() && mail() == 'masalameen@gmail.com';
+    }
+    match /{p=**} { allow read, write: if false; }
+  }
+}
